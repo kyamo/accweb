@@ -1,5 +1,5 @@
 # Builder
-FROM golang AS builder
+FROM golang AS build
 
 LABEL maintainer="kyamo" \
       version="latest" \
@@ -16,7 +16,8 @@ RUN apt-get install -y nodejs
 
 ENV GOPATH=/go
 
-RUN ./build/build_release.sh
+RUN chmod +x build/build_release.sh
+RUN build/build_release.sh
 
 # Final image
 FROM alpine:latest
