@@ -1,31 +1,29 @@
-FROM golang AS build
+# Builder
+FROM golang AS builder
 
-LABEL maintainer="Kugel" \
-	  contributors="GillesDubois" \
+LABEL maintainer="kyamo" \
       version="latest" \
       description="Assetto Corsa Competizione Server Management Tool via Web Interface."
 
-COPY . /go/src/github.com/assetto-corsa-web/accweb
+COPY . /go/src/github.com/kyamo/accweb
 
-WORKDIR /go/src/github.com/assetto-corsa-web/accweb
+WORKDIR /go/src/github.com/kyamo/accweb
 
 RUN apt update && \
-	apt upgrade -y && \
 	apt install curl  -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh && bash nodesource_setup.sh
 RUN apt-get install -y nodejs
 
 ENV GOPATH=/go
-RUN go build -tags netgo -a -v -ldflags "-s -w" main.go 
 
-RUN cd /go/src/github.com/assetto-corsa-web/accweb/public && npm i && npm rebuild node-sass && npm run build
+RUN ./build/build_release.sh
 
 # Final image
-FROM ubuntu:bionic
+FROM alpine:latest
 
-COPY --from=build /go/src/github.com/assetto-corsa-web/accweb /accweb
+COPY --from=build /go/src/github.com/kyamo/accweb /accweb
 
-ENV ACCWEB_HOST=localhost:8080 \
+ENV ACCWEB_HOST=0.0.0.0:8080 \
 	ACCWEB_ENABLE_TLS=false \
 	ACCWEB_CERT_FILE=/sslcerts/certificate.crt \
 	ACCWEB_PRIV_FILE=/sslcerts/private.key \
@@ -39,7 +37,7 @@ VOLUME /accserver /accweb /sslcerts
 
 WORKDIR /accweb
 
-RUN apt -y update && apt -y install gettext-base wine64-development wine-development libwine-development libwine-development-dev
+RUN apk update && apk add gettext wine
 
 EXPOSE 8080
 
