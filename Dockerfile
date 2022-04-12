@@ -1,5 +1,5 @@
 # Builder
-FROM golang AS build
+FROM golang AS builder
 
 LABEL maintainer="kyamo" \
       version="latest" \
@@ -15,14 +15,32 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh && bas
 RUN apt-get install -y nodejs
 
 ENV GOPATH=/go
+ENV VERSION='1.17.0'
 
-RUN chmod +x build/build_release.sh
-RUN build/build_release.sh
+# build frontend
+WORKDIR /go/src/github.com/kyamo/accweb/public
+RUN cp src/components/end.vue src/components/end.vue.orig
+RUN sed -i "s/%VERSION%/$VERSION/g" src/components/end.vue
+RUN sed -i "s/%COMMIT%/release/g" src/components/end.vue
+RUN npm i
+RUN npm run build
+RUN mv src/components/end.vue.orig src/components/end.vue
+
+# build backend
+WORKDIR /go/src/github.com/kyamo/accweb
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w" -o accweb cmd/main.go
+
+# copy files
+RUN cp build/sample_config.yml config.yml
+
+# make scripts and accweb executable
+RUN chmod +x ./accweb
+
 
 # Final image
-FROM alpine:latest
+FROM debian:bullseye
 
-COPY --from=build /go/src/github.com/kyamo/accweb /accweb
+COPY --from=builder /go/src/github.com/kyamo/accweb /accweb
 
 ENV ACCWEB_HOST=0.0.0.0:8080 \
 	ACCWEB_ENABLE_TLS=false \
@@ -38,8 +56,13 @@ VOLUME /accserver /accweb /sslcerts
 
 WORKDIR /accweb
 
-RUN apk update && apk add gettext wine
+# später aktivieren
+# RUN apk update && apk add gettext wine
+RUN apt-get update && apt-get install -y gettext-base wine64 wine libwine ca-certificates
+
+# Install wine32
+RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y libwine wine32
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/bin/sh", "-c", "/accweb/build/docker/docker-entrypoint.sh" ] 
+ENTRYPOINT [ "sh", "/accweb/build/docker/docker-entrypoint.sh" ]
