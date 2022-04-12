@@ -13,4 +13,4 @@ envsubst < build/docker/docker_config.yml > config.yml
 winecfg
 
 # Launch accweb main
-./main
+./accweb
