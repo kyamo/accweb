@@ -2,7 +2,7 @@ version: '3'
 
 services:
   accweb:
-    image: accweb:latest
+    image: kyamo/accweb:latest
     container_name : accweb-server
     restart: always
     ports:
