@@ -15,7 +15,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh && bas
 RUN apt-get install -y nodejs
 
 ENV GOPATH=/go
-ENV VERSION='1.17.0'
+ENV VERSION='1.18.0'
 
 # build frontend
 WORKDIR /go/src/github.com/kyamo/accweb/public
