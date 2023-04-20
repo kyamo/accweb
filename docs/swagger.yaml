@@ -21,7 +21,7 @@ definitions:
       accExtraSettings:
         $ref: '#/definitions/app.ExtraAccSettings'
       accWeb:
-        $ref: '#/definitions/instance.AccWebConfigJson'
+        $ref: '#/definitions/instance.AccWebSettingsJson'
       id:
         type: string
       is_running:
@@ -47,6 +47,8 @@ definitions:
         type: string
       sessionPhase:
         type: string
+      sessionRemaining:
+        type: integer
       sessionType:
         type: string
       tcpPort:
@@ -74,6 +76,8 @@ definitions:
         type: string
       sessionPhase:
         type: string
+      sessionRemaining:
+        type: integer
       sessionType:
         type: string
       tcpPort:
@@ -90,7 +94,7 @@ definitions:
       accExtraSettings:
         $ref: '#/definitions/app.ExtraAccSettings'
       accWeb:
-        $ref: '#/definitions/instance.AccWebConfigJson'
+        $ref: '#/definitions/instance.AccWebSettingsJson'
     type: object
   app.accWebInstanceLogs:
     properties:
@@ -116,18 +120,23 @@ definitions:
       settings:
         $ref: '#/definitions/instance.SettingsJson'
     type: object
-  instance.AccWebConfigJson:
+  instance.AccWebAdvWindowsSettingsJson:
     properties:
+      coreAffinity:
+        type: integer
+      cpuPriority:
+        type: integer
+      enableWindowsFirewall:
+        type: boolean
+    type: object
+  instance.AccWebSettingsJson:
+    properties:
+      advWindowsCfg:
+        $ref: '#/definitions/instance.AccWebAdvWindowsSettingsJson'
       autoStart:
         type: boolean
-      createdAt:
-        type: string
-      id:
-        type: string
-      md5Sum:
-        type: string
-      updatedAt:
-        type: string
+      enableAdvWindowsCfg:
+        type: boolean
     type: object
   instance.AssistRulesJson:
     properties:
@@ -213,6 +222,8 @@ definitions:
         type: integer
       maxConnections:
         type: integer
+      publicIP:
+        type: string
       registerToLobby:
         type: integer
       tcpPort:
@@ -228,6 +239,8 @@ definitions:
         type: string
       lastName:
         type: string
+      nationality:
+        type: integer
       playerID:
         type: string
       shortName:
@@ -373,6 +386,10 @@ definitions:
         additionalProperties:
           $ref: '#/definitions/instance.CarState'
         type: object
+      chats:
+        items:
+          $ref: '#/definitions/instance.ServerChat'
+        type: array
       nrClients:
         type: integer
       serverState:
@@ -386,6 +403,15 @@ definitions:
       track:
         type: string
       updatedAt:
+        type: string
+    type: object
+  instance.ServerChat:
+    properties:
+      message:
+        type: string
+      name:
+        type: string
+      ts:
         type: string
     type: object
   instance.SessionSettings:
@@ -453,7 +479,7 @@ info:
     url: https://github.com/assetto-corsa-web/accweb/blob/master/LICENSE
   termsOfService: http://swagger.io/terms/
   title: ACCWeb API documentation
-  version: "1.16"
+  version: "1.19"
 paths:
   /instance:
     post:
@@ -748,6 +774,19 @@ paths:
       summary: Stops acc instance
       tags:
       - instances
+  /metadata:
+    get:
+      description: Metadata informations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - JWT: []
+      summary: Returns server OS informations
+      tags:
+      - servers
   /servers:
     get:
       consumes:

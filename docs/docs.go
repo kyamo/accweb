@@ -488,6 +488,28 @@ const docTemplate = `{
                 }
             }
         },
+        "/metadata": {
+            "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "Metadata informations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "servers"
+                ],
+                "summary": "Returns server OS informations",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/servers": {
             "get": {
                 "security": [
@@ -578,7 +600,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/app.ExtraAccSettings"
                 },
                 "accWeb": {
-                    "$ref": "#/definitions/instance.AccWebConfigJson"
+                    "$ref": "#/definitions/instance.AccWebSettingsJson"
                 },
                 "id": {
                     "type": "string"
@@ -617,6 +639,9 @@ const docTemplate = `{
                 },
                 "sessionPhase": {
                     "type": "string"
+                },
+                "sessionRemaining": {
+                    "type": "integer"
                 },
                 "sessionType": {
                     "type": "string"
@@ -659,6 +684,9 @@ const docTemplate = `{
                 "sessionPhase": {
                     "type": "string"
                 },
+                "sessionRemaining": {
+                    "type": "integer"
+                },
                 "sessionType": {
                     "type": "string"
                 },
@@ -683,7 +711,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/app.ExtraAccSettings"
                 },
                 "accWeb": {
-                    "$ref": "#/definitions/instance.AccWebConfigJson"
+                    "$ref": "#/definitions/instance.AccWebSettingsJson"
                 }
             }
         },
@@ -724,23 +752,31 @@ const docTemplate = `{
                 }
             }
         },
-        "instance.AccWebConfigJson": {
+        "instance.AccWebAdvWindowsSettingsJson": {
             "type": "object",
             "properties": {
+                "coreAffinity": {
+                    "type": "integer"
+                },
+                "cpuPriority": {
+                    "type": "integer"
+                },
+                "enableWindowsFirewall": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "instance.AccWebSettingsJson": {
+            "type": "object",
+            "properties": {
+                "advWindowsCfg": {
+                    "$ref": "#/definitions/instance.AccWebAdvWindowsSettingsJson"
+                },
                 "autoStart": {
                     "type": "boolean"
                 },
-                "createdAt": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "md5Sum": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
+                "enableAdvWindowsCfg": {
+                    "type": "boolean"
                 }
             }
         },
@@ -872,6 +908,9 @@ const docTemplate = `{
                 "maxConnections": {
                     "type": "integer"
                 },
+                "publicIP": {
+                    "type": "string"
+                },
                 "registerToLobby": {
                     "type": "integer"
                 },
@@ -894,6 +933,9 @@ const docTemplate = `{
                 },
                 "lastName": {
                     "type": "string"
+                },
+                "nationality": {
+                    "type": "integer"
                 },
                 "playerID": {
                     "type": "string"
@@ -1116,6 +1158,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/instance.CarState"
                     }
                 },
+                "chats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/instance.ServerChat"
+                    }
+                },
                 "nrClients": {
                     "type": "integer"
                 },
@@ -1135,6 +1183,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "instance.ServerChat": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "ts": {
                     "type": "string"
                 }
             }
@@ -1233,7 +1295,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.16",
+	Version:          "1.19",
 	Host:             "localhost:8080",
 	BasePath:         "/api",
 	Schemes:          []string{},

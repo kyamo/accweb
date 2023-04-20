@@ -3,7 +3,7 @@
         <div class="title">
             <h1>{{servername}}</h1>
             <div class="menu">
-                <button class="primary" v-on:click="save" v-if="is_admin"><i class="fas fa-save"></i> {{$t("save")}}</button>
+                <button class="primary" v-on:click="save" v-if="is_admin && !is_running"><i class="fas fa-save"></i> {{$t("save")}}</button>
                 <button v-on:click="$router.push('/')" v-if="is_admin"><i class="fas fa-ban"></i> {{$t("cancel")}}</button>
                 <button class="primary" v-on:click="$router.push('/')" v-if="!is_admin"><i class="fas fa-arrow-left"></i> {{$t("back")}}</button>
             </div>
@@ -12,6 +12,7 @@
             <div v-bind:class="{tab: true, 'tab-active': activeTab === 0}" v-on:click="activeTab = 0">{{$t("server_config")}}</div>
         </div>
         <div v-show="activeTab === 0">
+            <field :label="$t('servername_label')" v-model="servername"></field>
             <accweb ref="accweb"></accweb>
             <basic ref="basic"></basic>
             <settings ref="settings"></settings>
@@ -26,22 +27,23 @@
 
 <script>
 import axios from "axios";
-import {layout, end, accweb, basic, settings, event, eventrules, entrylist, bop, assistrules} from "../components";
+import {layout, end, accweb, basic, settings, event, eventrules, entrylist, bop, assistrules, field} from "../components";
 
 export default {
-    components: {layout, end, accweb, basic, settings, event, eventrules, entrylist, bop, assistrules},
+    components: {layout, end, accweb, basic, settings, event, eventrules, entrylist, bop, assistrules, field},
     data() {
         return {
             activeTab: 0,
             id: 0,
-            servername: "New Server",
+            servername: "Server name (by accweb)",
             configurationJson: null,
             settingsJson: null,
             eventJson: null,
             eventRulesJson: null,
             entrylistJson: null,
             bopJson: null,
-            assistRulesJson: null
+            assistRulesJson: null,
+            is_running: false
         };
     },
     mounted() {
@@ -60,6 +62,7 @@ export default {
                 settings.adminPasswordIsEmpty = r.data.accExtraSettings.adminPasswordIsEmpty
                 settings.spectatorPasswordIsEmpty = r.data.accExtraSettings.spectatorPasswordIsEmpty
 
+                this.is_running = r.data.is_running;
                 this.servername = r.data.acc.settings.serverName;
                 this.$refs.accweb.setData(r.data.accWeb)
                 this.$refs.basic.setData(r.data.acc.configuration);
@@ -78,8 +81,8 @@ export default {
             let event = this.$refs.event.getData();
             let eventRules = this.$refs.eventrules.getData();
             let entrylist = this.$refs.entrylist.getData();
-			      let bop = this.$refs.bop.getData();
-			      let assistrules = this.$refs.assistrules.getData();
+            let bop = this.$refs.bop.getData();
+            let assistrules = this.$refs.assistrules.getData();
             let data = {
                 accWeb,
                 acc: {
@@ -97,6 +100,7 @@ export default {
                     spectatorPasswordIsEmpty: settings.spectatorPasswordIsEmpty,
                 }
             };
+            data.acc.settings.serverName = this.servername;
 
             let url = "/api/instance"
 
@@ -109,7 +113,7 @@ export default {
                 this.$router.push("/");
             })
             .catch(e => {
-                this.$store.commit("toast", this.$t("save_error"))
+                this.$store.commit("toast", this.$t("save_error") + ' ERROR: ' + e.response.data.error);
             });
         }
     }
@@ -122,6 +126,7 @@ export default {
         "save": "Save",
         "cancel": "Cancel",
         "back": "Back",
+        "servername_label": "Servername",
         "server_config": "Configure server",
         "save_error": "Error saving configuration, please check your input."
     }
