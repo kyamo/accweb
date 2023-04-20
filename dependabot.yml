@@ -1,0 +1,5 @@
+version: 2
+updates:
+    target-branch: "dev"
+    schedule:
+      interval: "daily"
