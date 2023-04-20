@@ -15,7 +15,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh && bas
 RUN apt-get install -y nodejs
 
 ENV GOPATH=/go
-ENV VERSION='1.18.0'
+ENV VERSION='1.20.0'
 
 # build frontend
 WORKDIR /go/src/github.com/kyamo/accweb/public
@@ -65,4 +65,4 @@ RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y libwine
 
 EXPOSE 8080
 
-ENTRYPOINT [ "sh", "/accweb/build/docker/docker-entrypoint.sh" ]
+ENTRYPOINT [ "/accweb/build/docker/docker-entrypoint.sh" ]
