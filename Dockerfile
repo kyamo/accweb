@@ -16,7 +16,7 @@ RUN apt-get update && \
     apt-get clean
 
 ENV GOPATH=/go
-ENV VERSION='1.20.1'
+ENV VERSION='1.21.0'
 
 # build frontend
 WORKDIR /go/src/github.com/kyamo/accweb/public
