@@ -1,5 +1,20 @@
 # Changelog
 
+## next
+* Fix arm64 node dependencies
+
+## 1.21.0
+* Add Morocoo nationality #245
+* Update go to 1.21.1
+* Update go dependencies
+* Fix Authorization issues
+* Fix css from read only server list #247
+* Fix README #228
+
+## 1.20.1
+* Add event metadata field #223
+* Hide /admin on chat command #233
+
 ## 1.20.0
 * Changes for DLC 1.19 #238
 * Update golang dep versions
@@ -10,7 +25,7 @@
 * Fix float point handling for rain and cloud. #211
 * Introducing the advance windows features as Firewall management, custom core affinity and cpu priority. #213
 * Add accserver auto update before start instance. 
-
+ 
 ## 1.18.0
 * Add sorting by number of players.
 * Add session remaining time in the servers list.
