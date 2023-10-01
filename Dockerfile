@@ -1,5 +1,5 @@
 # Builder
-FROM golang:1.20.3 AS builder
+FROM golang:1.21.1-bullseye AS builder
 
 LABEL maintainer="kyamo" \
       version="latest" \
@@ -9,14 +9,18 @@ COPY . /go/src/github.com/kyamo/accweb
 
 WORKDIR /go/src/github.com/kyamo/accweb
 
-RUN apt-get update && \
-    apt-get install curl -y && \
-    curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh && bash nodesource_setup.sh && \
-    apt-get install -y nodejs && \
-    apt-get clean
-
+ENV NODE_MAJOR=16
 ENV GOPATH=/go
 ENV VERSION='1.21.0'
+
+RUN apt-get update && \
+    apt-get install -y ca-certificates curl gnupg && \
+    mkdir -p /etc/apt/keyrings && \
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \ 
+    apt-get update && \
+    apt-get install -y nodejs && \
+    apt-get clean
 
 # build frontend
 WORKDIR /go/src/github.com/kyamo/accweb/public
@@ -40,7 +44,7 @@ RUN chmod +x ./accweb
 
 
 # Final image
-FROM debian:11.6-slim
+FROM debian:12-slim
 
 COPY --from=builder /go/src/github.com/kyamo/accweb /accweb
 
@@ -59,8 +63,7 @@ VOLUME /accserver /accweb /sslcerts
 WORKDIR /accweb
 
 RUN apt-get update && \
-    apt-get install -y gettext-base wine64 wine libwine ca-certificates && \
-    dpkg --add-architecture i386 && apt-get update && apt-get install -y libwine wine32
+    apt-get install -y gettext-base wine64 wine libwine ca-certificates
 
 EXPOSE 8080
 
