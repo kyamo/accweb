@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 # Move to working dir
 cd /accweb
 
 # Remove default config file
-rm -rf config.yml
+rm -f config.yml
 
 # envsubst to replace set config properly
 envsubst < build/docker/docker_config.yml > config.yml
