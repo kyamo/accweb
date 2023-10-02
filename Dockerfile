@@ -11,7 +11,7 @@ WORKDIR /go/src/github.com/kyamo/accweb
 
 ENV NODE_MAJOR=16
 ENV GOPATH=/go
-ENV VERSION='1.21.0'
+ENV VERSION=v1.21.0
 
 RUN apt-get update && \
     apt-get install -y ca-certificates curl gnupg && \
@@ -29,6 +29,7 @@ RUN cp src/components/end.vue src/components/end.vue.orig && \
     sed -i "s/%COMMIT%/release/g" src/components/end.vue
 
 RUN npm i && \
+    npm install -g node-sass && \
     npm run build && \
     mv src/components/end.vue.orig src/components/end.vue
 
