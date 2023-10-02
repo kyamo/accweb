@@ -1,26 +1,17 @@
 # Builder
-FROM golang:1.21.1-bullseye AS builder
+FROM golang:alpine3.18 AS builder
 
 LABEL maintainer="kyamo" \
       version="latest" \
       description="Assetto Corsa Competizione Server Management Tool via Web Interface."
 
 COPY . /go/src/github.com/kyamo/accweb
-
 WORKDIR /go/src/github.com/kyamo/accweb
 
-ENV NODE_MAJOR=16
 ENV GOPATH=/go
-ENV VERSION='1.21.0'
+ENV VERSION=v1.21.0
 
-RUN apt-get update && \
-    apt-get install -y ca-certificates curl gnupg && \
-    mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \ 
-    apt-get update && \
-    apt-get install -y nodejs && \
-    apt-get clean
+RUN apk add --update curl nodejs npm python3
 
 # build frontend
 WORKDIR /go/src/github.com/kyamo/accweb/public
@@ -29,8 +20,10 @@ RUN cp src/components/end.vue src/components/end.vue.orig && \
     sed -i "s/%COMMIT%/release/g" src/components/end.vue
 
 RUN npm i && \
+    npm install -g node-sass && \
     npm run build && \
     mv src/components/end.vue.orig src/components/end.vue
+
 
 # build backend
 WORKDIR /go/src/github.com/kyamo/accweb
@@ -44,7 +37,7 @@ RUN chmod +x ./accweb
 
 
 # Final image
-FROM debian:12-slim
+FROM alpine:3.18
 
 COPY --from=builder /go/src/github.com/kyamo/accweb /accweb
 
@@ -62,8 +55,7 @@ VOLUME /accserver /accweb /sslcerts
 
 WORKDIR /accweb
 
-RUN apt-get update && \
-    apt-get install -y gettext-base wine64 wine libwine ca-certificates
+RUN apk add --update gettext wine ca-certificates 
 
 EXPOSE 8080
 
